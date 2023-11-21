@@ -4,10 +4,20 @@ import (
 	"context"
 	"os"
 
+	"github.com/celestiaorg/celestia-node/cmd/celestia/bridge"
+	"github.com/celestiaorg/celestia-node/cmd/celestia/full"
+	"github.com/celestiaorg/celestia-node/cmd/celestia/light"
 	"github.com/spf13/cobra"
 )
 
+var bridgeCmd = bridge.NewBridgeCmd()
+var lightCmd = light.NewLightCmd()
+var fullCmd = full.NewFullCmd()
+
 func init() {
+	bridgeCmd.AddCommand(bridge.DefaultCommands(bridge.DefaultFlags)...)
+	lightCmd.AddCommand(light.DefaultCommands(bridge.DefaultFlags)...)
+	fullCmd.AddCommand(full.DefaultCommands(full.DefaultFlags)...)
 	rootCmd.AddCommand(
 		bridgeCmd,
 		lightCmd,
