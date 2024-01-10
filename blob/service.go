@@ -8,6 +8,7 @@ import (
 
 	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/types"
+	"github.com/davecgh/go-spew/spew"
 	logging "github.com/ipfs/go-log/v2"
 
 	"github.com/celestiaorg/celestia-app/pkg/shares"
@@ -81,6 +82,7 @@ func (s *Service) Submit(ctx context.Context, blobs []*Blob, options *SubmitOpti
 	if err != nil {
 		return 0, err
 	}
+	spew.Dump(resp)
 	return uint64(resp.Height), nil
 }
 
