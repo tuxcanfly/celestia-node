@@ -61,16 +61,16 @@ func (c *Client) Close() {
 
 // NewClient creates a new Client with one connection per namespace with the
 // given token as the authorization token.
-func NewClient(ctx context.Context, addr string, token string) (*Client, error) {
+func NewClient(ctx context.Context, addr string, token string, opts ...jsonrpc.Option) (*Client, error) {
 	authHeader := http.Header{perms.AuthKey: []string{fmt.Sprintf("Bearer %s", token)}}
-	return newClient(ctx, addr, authHeader)
+	return newClient(ctx, addr, authHeader, opts...)
 }
 
-func newClient(ctx context.Context, addr string, authHeader http.Header) (*Client, error) {
+func newClient(ctx context.Context, addr string, authHeader http.Header, opts ...jsonrpc.Option) (*Client, error) {
 	var multiCloser multiClientCloser
 	var client Client
 	for name, module := range moduleMap(&client) {
-		closer, err := jsonrpc.NewClient(ctx, addr, name, module, authHeader)
+		closer, err := jsonrpc.NewMergeClient(ctx, addr, name, []interface{}{module}, authHeader, opts...)
 		if err != nil {
 			return nil, err
 		}
