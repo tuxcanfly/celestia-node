@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/binary"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -25,6 +26,17 @@ var log = logging.Logger("go-da")
 //
 // This is 8 as uint64 consist of 8 bytes.
 const heightLen = 8
+
+var (
+	// ErrTxTimedout is the error message returned by the DA when mempool is congested
+	ErrTxTimedout = errors.New("timed out waiting for tx to be included in a block")
+
+	// ErrTxSizeTooBig is the error message returned by the DA when tx size is too big
+	ErrTxSizeTooBig = errors.New("tx size is too big")
+
+	// ErrTxTooLarge is the err message returned by the DA when tx size is too large
+	ErrTxTooLarge = errors.New("tx too large")
+)
 
 type Service struct {
 	blobServ nodeblob.Module
@@ -113,7 +125,16 @@ func (s *Service) Submit(
 	height, err := s.blobServ.Submit(ctx, blobs, blob.GasPrice(gasPrice))
 	if err != nil {
 		log.Error("failed to submit blobs", "height", height, "gas price", gasPrice)
-		return nil, err
+		switch {
+		case strings.Contains(err.Error(), ErrTxTimedout.Error()):
+			return nil, da.NewGasFeeError(err)
+		case strings.Contains(err.Error(), ErrTxSizeTooBig.Error()):
+			return nil, da.NewBlobSizeError(err)
+		case strings.Contains(err.Error(), ErrTxTooLarge.Error()):
+			return nil, da.NewBlobSizeError(err)
+		default:
+			return nil, err
+		}
 	}
 	log.Info("successfully submitted blobs", "height", height, "gas price", gasPrice)
 	ids := make([]da.ID, len(blobs))
