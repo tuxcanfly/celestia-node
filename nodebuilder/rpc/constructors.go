@@ -2,6 +2,7 @@ package rpc
 
 import (
 	"github.com/cristalhq/jwt"
+	"github.com/filecoin-project/go-jsonrpc"
 
 	"github.com/celestiaorg/celestia-node/api/rpc"
 	"github.com/celestiaorg/celestia-node/nodebuilder/blob"
@@ -14,6 +15,8 @@ import (
 	"github.com/celestiaorg/celestia-node/nodebuilder/share"
 	"github.com/celestiaorg/celestia-node/nodebuilder/state"
 )
+
+var errs = jsonrpc.NewErrors()
 
 // registerEndpoints registers the given services on the rpc.
 func registerEndpoints(
@@ -37,8 +40,9 @@ func registerEndpoints(
 	serv.RegisterService("node", nodeMod, &node.API{})
 	serv.RegisterService("blob", blobMod, &blob.API{})
 	serv.RegisterService("da", daMod, &da.API{})
+	daMod.RegisterErrors(&errs)
 }
 
 func server(cfg *Config, auth jwt.Signer) *rpc.Server {
-	return rpc.NewServer(cfg.Address, cfg.Port, cfg.SkipAuth, auth)
+	return rpc.NewServer(cfg.Address, cfg.Port, cfg.SkipAuth, auth, jsonrpc.WithServerErrors(errs))
 }

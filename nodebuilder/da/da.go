@@ -3,12 +3,14 @@ package da
 import (
 	"context"
 
+	"github.com/filecoin-project/go-jsonrpc"
 	"github.com/rollkit/go-da"
 )
 
 //go:generate mockgen -destination=mocks/api.go -package=mocks . Module
 type Module interface {
 	da.DA
+	RegisterErrors(*jsonrpc.Errors)
 }
 
 // API is a wrapper around Module for the RPC.

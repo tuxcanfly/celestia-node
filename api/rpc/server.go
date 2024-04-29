@@ -30,8 +30,8 @@ type Server struct {
 	auth jwt.Signer
 }
 
-func NewServer(address, port string, authDisabled bool, secret jwt.Signer) *Server {
-	rpc := jsonrpc.NewServer()
+func NewServer(address, port string, authDisabled bool, secret jwt.Signer, opts ...jsonrpc.ServerOption)  *Server {
+	rpc := jsonrpc.NewServer(opts...)
 	srv := &Server{
 		rpc: rpc,
 		srv: &http.Server{

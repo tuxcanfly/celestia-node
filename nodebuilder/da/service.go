@@ -8,10 +8,9 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/filecoin-project/go-jsonrpc"
 	logging "github.com/ipfs/go-log/v2"
 	"github.com/rollkit/go-da"
-
-	"github.com/celestiaorg/celestia-app/pkg/appconsts"
 
 	"github.com/celestiaorg/celestia-node/blob"
 	nodeblob "github.com/celestiaorg/celestia-node/nodebuilder/blob"
@@ -46,6 +45,11 @@ func NewService(blobMod nodeblob.Module) *Service {
 	return &Service{
 		blobServ: blobMod,
 	}
+}
+
+func (s *Service) RegisterErrors(errs *jsonrpc.Errors) () {
+	errs.Register(1001, da.ErrGasFee)
+	errs.Register(1002, da.ErrBlobSize)
 }
 
 // MaxBlobSize returns the max blob size
